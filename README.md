@@ -4,7 +4,7 @@
 
 ### Compiling and Running
 
-A makefile is included which compiles both the `sender` and `receiver` binaries. You may then run the receiver (server) and sender (client). The below example uses the port 5000, though you may use any un-privileged port.
+A makefile is included which compiles both the `sender` and `receiver` binaries. You may then run the receiver and sender. The below example uses the port 5000, though you may use any un-privileged port.
 
 ```shell
 make
@@ -20,6 +20,7 @@ It's recommended you first read over each of the files provided, especially the 
 
 Once ready, you may begin developing your solution in `sender_subroutine.c`.
 
-1. ccitt16.h: a header file for calcuating CCITT16 checksums.
-2. ccitt16.o: the object file for ccitt16.o, already compiled for the co2061 machines.
-3. introduceerror.c/.h:
+## Helpful Notes
+
+- When receiving a `NAK`, don't think too much into the received packet printed out by `receiver_subroutine.c`. After all, it _is_ a corrupted packet.
+- `sender.o` and `receiver.o` already set up the connection between the sender and receiver.

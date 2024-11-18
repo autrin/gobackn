@@ -31,10 +31,10 @@ void primary(int sockfd, double ber) {
     /* Receive a reply from the server
      * Note:
      *   Sockets, and recv, do not keep messages separated. For example, If you
-     *   receive two 16-byte messages between receives, your next receive will
+     *   receive two 16-byte messages between recvs, your next recv will
      *   be 32 bytes. Similarly, if there's 200 bytes to receive but you only
      *   read 149, there will be messages left in your socket's buffer. */
-    if ((read_size = recv(sockfd, srv_reply, 6, 0)) < 0) {
+    if ((read_size = recv(sockfd, srv_reply, PKT_SIZE, 0)) < 0) {
         perror("recv failed");
     } else {
         printf("Received packet: ");
