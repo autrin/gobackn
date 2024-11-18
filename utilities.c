@@ -3,22 +3,34 @@
 #include <stdint.h>
 #include <string.h>
 
-void build_packet(packet_t *packet, uint8_t type, char data[], uint8_t num) {
-    packet->type = type;
-    packet->sequence_number = num;
+void build_packet(packet_t *packet, unsigned char type, char data[], unsigned char num)
+{	
+	int i, j;
+    unsigned char packet_raw[PKT_SIZE];
+	//Set type and sequence number
+	packet_raw[0] = type;
+	packet_raw[1] = num;
+	
+	//set data field
+	for(i = PKT_DATA_OFFSET, j = 0; i < PKT_DATA_SIZE + PKT_DATA_OFFSET; ++i, ++j)
+	{
+		packet_raw[i] = data[j]; //packet[2] = data[0]; packet[3] = data[1]
+	}
+	
+	//union to split the CRC output into two bytes.
+	//Suggestion taken from GedasL at http://www.avrfreaks.net/forum/c-programming-how-split-int16-bits-2-char8bit
+	union short_split
+	{
+		short int CRC;
+		unsigned char bytes[2];
+	}splitter;
+	
+	splitter.CRC = calculate_CCITT16(packet_raw, PKT_SIZE - 2, GENERATE_CRC);
+	//set the two CRC bytes
+	packet_raw[PKT_SIZE - 1] = splitter.bytes[0];
+	packet_raw[PKT_SIZE - 2] = splitter.bytes[1];
 
-    memcpy(packet->data, data, PKT_DATA_SIZE);
-
-    // union to split the CRC output into two bytes.
-    // Suggestion taken from GedasL at
-    // http://www.avrfreaks.net/forum/c-programming-how-split-int16-bits-2-char8bit
-    union short_split {
-        short int CRC;
-        unsigned char bytes[2];
-    } splitter;
-
-    splitter.CRC = calculate_CCITT16((unsigned char*)&packet, PKT_SIZE - 2, GENERATE_CRC);
-    memcpy(packet->crc_sum, splitter.bytes, 2);
+    memcpy(packet, packet_raw, PKT_SIZE);
 }
 
 void print_packet(packet_t *packet) {

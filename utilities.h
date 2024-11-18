@@ -51,7 +51,8 @@ typedef struct __attribute__((packed)) packet_t {
  *   The data array is expected to be the size of the defined DATA_LENGTH.
  *   num is the packet number of the current packet.
  */
-void build_packet(packet_t *packet, uint8_t type, char data[], uint8_t num);
+void build_packet(packet_t *packet, unsigned char type, char data[], unsigned char num);
+// void build_packet(packet_t *packet, uint8_t type, char data[], uint8_t num);
 
 /**
  * Prints the given packet in a neat one-line format
