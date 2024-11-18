@@ -22,5 +22,6 @@ Once ready, you may begin developing your solution in `sender_subroutine.c`.
 
 ## Helpful Notes
 
+- Some of the given .o files such as the CCITT16 CRC generation code may not compile on machines other than the ones in the Coover 2061 lab. However, you may use/implement your own CCITT16 CRC generator.
 - When receiving a `NAK`, don't think too much into the received packet printed out by `receiver_subroutine.c`. After all, it _is_ a corrupted packet.
 - `sender.o` and `receiver.o` already set up the connection between the sender and receiver.
