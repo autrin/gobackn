@@ -54,6 +54,8 @@ void primary(int sockfd, double ber) {
             perror("Send failed");
         printf("Sent packet: ");
         print_packet((packet_t *)&send_msg);
+
+        pack_num++;
     }
 
     /* Receive a reply from the server
