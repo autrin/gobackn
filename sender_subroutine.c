@@ -14,19 +14,28 @@ void primary(int sockfd, double ber) {
 
     /* TODO: Replace this function with your solution according to the lab
      * manual. */
-
     int read_size;
-    char send_msg[6];
+    // char send_msg[6];
+    char alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    char send_msg[3]; // To store two characters and a null terminator
     char srv_reply[150];
-
+    int pack_num = 0;
     printf("---------Beginning subroutine---------\n");
-
-    // send a plain message
-    strcpy(send_msg, "Hello");
-    if (send(sockfd, send_msg, sizeof(send_msg), 0) < 0)
-        perror("Send failed");
-    printf("Sent packet: ");
-    print_packet((packet_t *)&send_msg);
+    while(pack_num < 13){ // 13 packets to send
+        //1. Build packet
+        packet_t *packet = malloc(sizeof(packet_t));
+        if(!packet){
+            perror("Memmory allocation failed");
+            return;
+        }
+        
+        // send a plain message
+        strcpy(send_msg, "Hello");
+        if (send(sockfd, send_msg, sizeof(send_msg), 0) < 0)
+            perror("Send failed");
+        printf("Sent packet: ");
+        print_packet((packet_t *)&send_msg);
+    }
 
     /* Receive a reply from the server
      * Note:
