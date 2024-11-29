@@ -36,7 +36,7 @@ void primary(int sockfd, double ber) {
         // Build packet
         build_packet(packet, PKT_TYPE_DATA, send_msg, pack_num);
         printf("Enter the bit rate error: ");
-        
+        scanf("%lf", &ber);
         // introduce error based on the bit rate error
         introduce_bit_error(send_msg, sizeof(send_msg)/sizeof(send_msg[1]), ber);
         // Notice that if the data is delivered corrupt, it needs to be redelivered
