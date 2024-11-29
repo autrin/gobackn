@@ -20,7 +20,6 @@ void primary(int sockfd, double ber) {
     char send_msg[3]; // To store two characters and a null terminator
     char srv_reply[150];
     int pack_num = 0;
-    double ber; // Bit Rate Error
 
     printf("---------Beginning subroutine---------\n");
     while(pack_num < 13){ // 13 packets to send
@@ -39,7 +38,7 @@ void primary(int sockfd, double ber) {
         scanf("%lf", &ber);
         if (ber < 0.0 || ber > 1.0) {
             fprintf(stderr, "Error: Bit error rate must be between 0 and 1.\n");
-            return 1;
+            return;
         }
 
         // introduce error based on the bit rate error
@@ -47,7 +46,7 @@ void primary(int sockfd, double ber) {
         // Notice that if the data is delivered corrupt, it needs to be redelivered
 
         // send a plain message
-        strcpy(send_msg, "Hello");
+        // strcpy(send_msg, "Hello");
         if (send(sockfd, send_msg, sizeof(send_msg), 0) < 0)
             perror("Send failed");
         printf("Sent packet: ");
