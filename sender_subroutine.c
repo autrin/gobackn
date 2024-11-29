@@ -37,6 +37,11 @@ void primary(int sockfd, double ber) {
         build_packet(packet, PKT_TYPE_DATA, send_msg, pack_num);
         printf("Enter the bit rate error: ");
         scanf("%lf", &ber);
+        if (ber < 0.0 || ber > 1.0) {
+            fprintf(stderr, "Error: Bit error rate must be between 0 and 1.\n");
+            return 1;
+        }
+
         // introduce error based on the bit rate error
         introduce_bit_error(send_msg, sizeof(send_msg)/sizeof(send_msg[1]), ber);
         // Notice that if the data is delivered corrupt, it needs to be redelivered
