@@ -44,7 +44,10 @@ void primary(int sockfd, double ber) {
         // introduce error based on the bit rate error
         introduce_bit_error(send_msg, sizeof(send_msg)/sizeof(send_msg[1]), ber);
         // Notice that if the data is delivered corrupt, it needs to be redelivered
+        printf("Built packet and applied ber\n");
+        print_packet((packet_t *)&send_msg);
 
+        // Implement Go-Back-N ARQ protocol with a send window of 3
         // send a plain message
         // strcpy(send_msg, "Hello");
         if (send(sockfd, send_msg, sizeof(send_msg), 0) < 0)
