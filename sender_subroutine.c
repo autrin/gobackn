@@ -22,13 +22,17 @@ void primary(int sockfd, double ber) {
     int pack_num = 0;
     printf("---------Beginning subroutine---------\n");
     while(pack_num < 13){ // 13 packets to send
-        //1. Build packet
         packet_t *packet = malloc(sizeof(packet_t));
         if(!packet){
             perror("Memmory allocation failed");
             return;
         }
-        
+        // Extract 2 characters for the current packet
+        send_msg[0] = alphabet[pack_num * 2];
+        send_msg[1] = alphabet[pack_num * 2 + 1];
+        send_msg[2] = '\0';
+        // Build packet
+        build_packet(packet, PKT_TYPE_DATA, send_msg, pack_num);
         // send a plain message
         strcpy(send_msg, "Hello");
         if (send(sockfd, send_msg, sizeof(send_msg), 0) < 0)
