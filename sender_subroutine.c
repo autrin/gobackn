@@ -22,6 +22,12 @@ void primary(int sockfd, double ber) {
     int pack_num = 0;
 
     printf("---------Beginning subroutine---------\n");
+    printf("Enter the bit rate error: ");
+    scanf("%lf", &ber);
+    if (ber < 0.0 || ber > 1.0) {
+        fprintf(stderr, "Error: Bit error rate must be between 0 and 1.\n");
+        return;
+    }
     while(pack_num < 13){ // 13 packets to send
         packet_t *packet = malloc(sizeof(packet_t));
         if(!packet){
@@ -34,12 +40,6 @@ void primary(int sockfd, double ber) {
         send_msg[2] = '\0';
         // Build packet
         build_packet(packet, PKT_TYPE_DATA, send_msg, pack_num);
-        printf("Enter the bit rate error: ");
-        scanf("%lf", &ber);
-        if (ber < 0.0 || ber > 1.0) {
-            fprintf(stderr, "Error: Bit error rate must be between 0 and 1.\n");
-            return;
-        }
 
         // introduce error based on the bit rate error
         introduce_bit_error(send_msg, sizeof(send_msg)/sizeof(send_msg[1]), ber);
