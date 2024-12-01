@@ -47,7 +47,15 @@ void primary(int sockfd, double ber) {
         print_packet((packet_t *)&send_msg);
         pack_num++;
     }
-    // Implement Go-Back-N ARQ protocol with a send window of 3
+    // Implement Go-Back-N ARQ protocol:
+    // - The sender initially sends all packets within its send window. 
+    //   Any time a packet is sent, the packet should be printed accordingly.
+    // - When the sender gets an ACK from the receiver, it (1) displays 
+    //   an indication of the received ACK, (2) adjusts the send window 
+    //   and (3) sends any new packets in its send window.
+    // - When the sender gets a NAK from the receiver, it (1) displays 
+    //   an indication of the received NAK and (2) retransmits all the packets in 
+    //   the send window.
     for(int i = 0; i < WINDOW; i++){
         // send a plain message
         // strcpy(send_msg, "Hello");
