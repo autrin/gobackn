@@ -20,13 +20,17 @@ void primary(int sockfd, double ber) {
     int read_size;
     char send_msg[3]; // To store two characters and a null terminator
     printf("---------Beginning subroutine---------\n");
+
+    // Input BER
     printf("Enter the bit rate error: ");
     scanf("%lf", &ber);
     if (ber < 0.0 || ber > 1.0) {
         fprintf(stderr, "Error: Bit error rate must be between 0 and 1.\n");
         return;
     }
-    while(pack_num < 13){ // 13 packets to send
+    while(base < 13){ // loop until all packets are acknowledged
+        // send packets in the current window
+        while(next_seq_num < base + WINDOW && next_seq_num < 13){}
         packet_t *packet = malloc(sizeof(packet_t));
         if(!packet){
             perror("Memmory allocation failed");
