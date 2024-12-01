@@ -92,6 +92,11 @@ void primary(int sockfd, double ber) {
                     base++;
                 }
             }
+            // Process NAK
+            else if(response->type == PKT_TYPE_NAK){
+                printf("Received NAK for packet %d, retransmitting window...\n", response->sequence_number);
+                next_seq_num = base; // Reset to the base for retransmission
+            }
         }
     }
     // Implement Go-Back-N ARQ protocol:
