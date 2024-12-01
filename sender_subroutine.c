@@ -69,6 +69,10 @@ void primary(int sockfd, double ber) {
             // Print the sent packet
             printf("Sent packet: ");
             print_packet(packet);
+
+            // Store the packet in the send window for potential retransmission
+            window[next_seq_num % WINDOW] = packet;
+            next_seq_num++;
         }
     }
     // Implement Go-Back-N ARQ protocol:
