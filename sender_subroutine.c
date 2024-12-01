@@ -99,6 +99,13 @@ void primary(int sockfd, double ber) {
             }
         }
     }
+
+    // Cleanup: free any remaining allocated packets
+    for(int i = 0; i < WINDOW; i++){
+        if(window[i]){
+            free(window[i]);
+        }
+    }
     // Implement Go-Back-N ARQ protocol:
     // - The sender initially sends all packets within its send window. 
     //   Any time a packet is sent, the packet should be printed accordingly.
