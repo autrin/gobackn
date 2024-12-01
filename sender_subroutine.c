@@ -78,16 +78,22 @@ void primary(int sockfd, double ber) {
 
             // Process ACK
             if (response->type == PKT_TYPE_ACK) {
-                printf("Received ACK for packet %d\n", response->sequence_number);
-                if (response->sequence_number >= base) {
-                    while (base <= response->sequence_number) {
-                        // Free acknowledged packets
+            printf("Received ACK for packet %d\n", response->sequence_number);
+            
+            if (response->sequence_number >= base) {
+                // Slide the window forward
+                while (base <= response->sequence_number) {
+                    // Do NOT free packets until they are completely out of the window
+                    // Only set them to NULL for better clarity
+                    if (window[base % WINDOW]) {
                         free(window[base % WINDOW]);
                         window[base % WINDOW] = NULL;
-                        base++;
                     }
+                    base++;
                 }
             }
+        }
+
             // Process NAK
             else if (response->type == PKT_TYPE_NAK) {
                 printf("Received NAK for packet %d, retransmitting window...\n",
