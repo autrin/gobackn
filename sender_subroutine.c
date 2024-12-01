@@ -80,7 +80,13 @@ void primary(int sockfd, double ber) {
         if(recv(sockfd, srv_reply, PKT_SIZE, 0) < 0){
             perror("recv failed");
         } else{
-            // packet_t *v
+            packet_t *response = (packet_t *) srv_reply;
+
+            // Process ACK
+            if(response->type == PKT_TYPE_ACK){
+                printf("Received ACK for packet %d\n", response->sequence_number);
+                
+            }
         }
     }
     // Implement Go-Back-N ARQ protocol:
