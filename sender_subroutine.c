@@ -11,53 +11,44 @@
  * 					with the secondary
  * ber 	  - bit error rate which must be passed to IntroduceError */
 void primary(int sockfd, double ber) {
-    int pack_num = 0; // packet sequence num
-    int base = 0; // go-back-n arq base sequence
-    int next_seq_num = 0; // next seq number
+    int pack_num = 0;     // Packet sequence number
+    int base = 0;         // Go-Back-N ARQ base sequence
+    int next_seq_num = 0; // Next sequence number
     char alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    char srv_reply[150]; // buffer for receiver replies
-    packet_t *window[WINDOW] = {0}; // store packets in the send window
-    int read_size;
-    char send_msg[3]; // To store two characters and a null terminator
+    char srv_reply[150];            // Buffer for receiver replies
+    packet_t *window[WINDOW] = {0}; // Store packets in the send window
     printf("---------Beginning subroutine---------\n");
 
-    // Input BER
+    // Input BER (bit error rate)
     printf("Enter the bit rate error: ");
     scanf("%lf", &ber);
     if (ber < 0.0 || ber > 1.0) {
         fprintf(stderr, "Error: Bit error rate must be between 0 and 1.\n");
         return;
     }
-    while(base < 13){ // loop until all packets are acknowledged
-        // send packets in the current window
-        while(next_seq_num < base + WINDOW && next_seq_num < 13){
+
+    while (base < 13) { // Loop until all packets are acknowledged
+        // Send packets in the current window
+        while (next_seq_num < base + WINDOW && next_seq_num < 13) {
             packet_t *packet = malloc(sizeof(packet_t));
-            if(!packet){
-                perror("Memmory allocation failed");
+            if (!packet) {
+                perror("Memory allocation failed");
                 return;
             }
+
             // Build the packet
-            char send_msg[3] = {
-                alphabet[next_seq_num * 2],
-                alphabet[next_seq_num * 2 + 1],
-                '\0'
-            };
+            char send_msg[3] = {alphabet[next_seq_num * 2],
+                                alphabet[next_seq_num * 2 + 1], '\0'};
             build_packet(packet, PKT_TYPE_DATA, send_msg, next_seq_num);
 
             // Generate CRC
-            short int crc = calculate_CCITT16((unsigned char *)packet, PKT_SIZE - 2, GENERATE_CRC);
-            // PKT-2 Excludes the last two bytes of the packet (reserved for CRC) when generating the CRC.
-            
-            // Set CRC into the packet
+            short int crc = calculate_CCITT16((unsigned char *)packet,
+                                              PKT_SIZE - 2, GENERATE_CRC);
             packet->crc_sum[0] = (crc >> 8) & 0xFF; // High byte
             packet->crc_sum[1] = crc & 0xFF;        // Low byte
 
             // Apply BER to the packet
             introduce_bit_error((char *)packet, PKT_SIZE, ber);
-            // Notice that if the data is delivered corrupt, it needs to be redelivered
-            // printf("Built packet and applied ber\n");
-            // print_packet((packet_t *)&send_msg);
-            // pack_num++;
 
             // Send the packet
             if (send(sockfd, (char *)packet, sizeof(packet_t), 0) < 0) {
@@ -73,37 +64,38 @@ void primary(int sockfd, double ber) {
             // Store the packet in the send window for potential retransmission
             window[next_seq_num % WINDOW] = packet;
             next_seq_num++;
-
         }
 
-        // Wait for acknowledgement from the receiver
-        if(recv(sockfd, srv_reply, PKT_SIZE, 0) < 0){
+        // Wait for acknowledgment from the receiver
+        if (recv(sockfd, srv_reply, PKT_SIZE, 0) < 0) {
             perror("recv failed");
-        } else{
-            packet_t *response = (packet_t *) srv_reply;
+        } else {
+            packet_t *response = (packet_t *)srv_reply;
 
             // Process ACK
-            if(response->type == PKT_TYPE_ACK){
-                printf("Received ACK for packet %d\n", response->sequence_number);
-                while(base <= response->sequence_number){
-                    // Free acknowleged packets
+            if (response->type == PKT_TYPE_ACK) {
+                printf("Received ACK for packet %d\n",
+                       response->sequence_number);
+                while (base <= response->sequence_number) {
+                    // Free acknowledged packets
                     free(window[base % WINDOW]);
                     window[base % WINDOW] = NULL;
                     base++;
                 }
             }
             // Process NAK
-            else if(response->type == PKT_TYPE_NAK){
-                printf("Received NAK for packet %d, retransmitting window...\n", response->sequence_number);
+            else if (response->type == PKT_TYPE_NAK) {
+                printf("Received NAK for packet %d, retransmitting window...\n",
+                       response->sequence_number);
                 next_seq_num = base; // Reset to the base for retransmission
             }
         }
     }
 
     // Cleanup: free any remaining allocated packets
-    for(int i = 0; i < WINDOW; i++){
-        if(window[i]){
+    for (int i = 0; i < WINDOW; i++) {
+        if (window[i]) {
             free(window[i]);
         }
     }
-    
+}
