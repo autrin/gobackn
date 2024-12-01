@@ -11,15 +11,14 @@
  * 					with the secondary
  * ber 	  - bit error rate which must be passed to IntroduceError */
 void primary(int sockfd, double ber) {
-
-    /* TODO: Replace this function with your solution according to the lab
-     * manual. */
-    int read_size;
-    // char send_msg[6];
+    int pack_num = 0; // packet sequence num
+    int base = 0; // go-back-n arq base sequence
+    int next_seq_num = 0; // next seq number
     char alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    char srv_reply[150]; // buffer for receiver replies
+    packet_t *window[WINDOW] = {0}; // store packets in the send window
+    int read_size;
     char send_msg[3]; // To store two characters and a null terminator
-    char srv_reply[150];
-    int pack_num = 0;
     printf("---------Beginning subroutine---------\n");
     printf("Enter the bit rate error: ");
     scanf("%lf", &ber);
@@ -42,11 +41,12 @@ void primary(int sockfd, double ber) {
         // Apply CRC to the packet (generate CRC)
         short int crc = calculate_CCITT16((unsigned char *)packet, PKT_SIZE - 2, GENERATE_CRC);
         // PKT-2 Excludes the last two bytes of the packet (reserved for CRC) when generating the CRC.
+        
         // Set CRC into the packet
         packet->crc_sum[0] = (crc >> 8) & 0xFF; // High byte
         packet->crc_sum[1] = crc & 0xFF;        // Low byte
         // introduce error based on the bit rate error
-        introduce_bit_error(send_msg, sizeof(send_msg)/sizeof(send_msg[1]), ber);
+        introduce_bit_error((char *)packet, PKT_SIZE, ber);
         // Notice that if the data is delivered corrupt, it needs to be redelivered
         printf("Built packet and applied ber\n");
         print_packet((packet_t *)&send_msg);
