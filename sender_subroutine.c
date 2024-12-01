@@ -73,6 +73,14 @@ void primary(int sockfd, double ber) {
             // Store the packet in the send window for potential retransmission
             window[next_seq_num % WINDOW] = packet;
             next_seq_num++;
+
+        }
+
+        // Wait for acknowledgement from the receiver
+        if(recv(sockfd, srv_reply, PKT_SIZE, 0) < 0){
+            perror("recv failed");
+        } else{
+            // packet_t *v
         }
     }
     // Implement Go-Back-N ARQ protocol:
