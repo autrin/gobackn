@@ -30,31 +30,34 @@ void primary(int sockfd, double ber) {
     }
     while(base < 13){ // loop until all packets are acknowledged
         // send packets in the current window
-        while(next_seq_num < base + WINDOW && next_seq_num < 13){}
-        packet_t *packet = malloc(sizeof(packet_t));
-        if(!packet){
-            perror("Memmory allocation failed");
-            return;
+        while(next_seq_num < base + WINDOW && next_seq_num < 13){
+            packet_t *packet = malloc(sizeof(packet_t));
+            if(!packet){
+                perror("Memmory allocation failed");
+                return;
+            }
+            // Build the packet
+            char send_msg[3] = {
+                alphabet[next_seq_num * 2],
+                alphabet[next_seq_num * 2 + 1],
+                '\0'
+            };
+            build_packet(packet, PKT_TYPE_DATA, send_msg, next_seq_num);
+
+            // Apply CRC to the packet (generate CRC)
+            short int crc = calculate_CCITT16((unsigned char *)packet, PKT_SIZE - 2, GENERATE_CRC);
+            // PKT-2 Excludes the last two bytes of the packet (reserved for CRC) when generating the CRC.
+            
+            // Set CRC into the packet
+            packet->crc_sum[0] = (crc >> 8) & 0xFF; // High byte
+            packet->crc_sum[1] = crc & 0xFF;        // Low byte
+            // introduce error based on the bit rate error
+            introduce_bit_error((char *)packet, PKT_SIZE, ber);
+            // Notice that if the data is delivered corrupt, it needs to be redelivered
+            printf("Built packet and applied ber\n");
+            print_packet((packet_t *)&send_msg);
+            pack_num++;
         }
-        // Extract 2 characters for the current packet
-        send_msg[0] = alphabet[pack_num * 2];
-        send_msg[1] = alphabet[pack_num * 2 + 1];
-        send_msg[2] = '\0';
-        // Build packet
-        build_packet(packet, PKT_TYPE_DATA, send_msg, pack_num);
-        // Apply CRC to the packet (generate CRC)
-        short int crc = calculate_CCITT16((unsigned char *)packet, PKT_SIZE - 2, GENERATE_CRC);
-        // PKT-2 Excludes the last two bytes of the packet (reserved for CRC) when generating the CRC.
-        
-        // Set CRC into the packet
-        packet->crc_sum[0] = (crc >> 8) & 0xFF; // High byte
-        packet->crc_sum[1] = crc & 0xFF;        // Low byte
-        // introduce error based on the bit rate error
-        introduce_bit_error((char *)packet, PKT_SIZE, ber);
-        // Notice that if the data is delivered corrupt, it needs to be redelivered
-        printf("Built packet and applied ber\n");
-        print_packet((packet_t *)&send_msg);
-        pack_num++;
     }
     // Implement Go-Back-N ARQ protocol:
     // - The sender initially sends all packets within its send window. 
