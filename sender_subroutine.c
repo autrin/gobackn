@@ -85,7 +85,12 @@ void primary(int sockfd, double ber) {
             // Process ACK
             if(response->type == PKT_TYPE_ACK){
                 printf("Received ACK for packet %d\n", response->sequence_number);
-                
+                while(base <= response->sequence_number){
+                    // Free acknowleged packets
+                    free(window[base % WINDOW]);
+                    window[base % WINDOW] = NULL;
+                    base++;
+                }
             }
         }
     }
