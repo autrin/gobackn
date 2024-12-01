@@ -48,6 +48,7 @@ void primary(int sockfd, double ber) {
             packet->crc_sum[1] = crc & 0xFF;        // Low byte
 
             // Apply BER to the packet
+            printf("Applying BER=%.3f to packet %d\n", ber, next_seq_num);
             introduce_bit_error((char *)packet, PKT_SIZE, ber);
 
             // Send the packet
@@ -65,31 +66,47 @@ void primary(int sockfd, double ber) {
             window[next_seq_num % WINDOW] = packet;
             next_seq_num++;
         }
-        printf("Sliding window: base=%d, next_seq_num=%d\n", base, next_seq_num);
+        printf("Sliding window: base=%d, next_seq_num=%d\n", base,
+               next_seq_num);
 
-        // Wait for acknowledgment from the receiver
+        // Wait for acknowledgment
         if (recv(sockfd, srv_reply, PKT_SIZE, 0) < 0) {
-            perror("recv failed");
+            perror("Recv failed");
+            return;
         } else {
             packet_t *response = (packet_t *)srv_reply;
 
             // Process ACK
             if (response->type == PKT_TYPE_ACK) {
-                printf("Received ACK for packet %d\n",
-                       response->sequence_number);
-                while (base <= response->sequence_number) {
-                    // Free acknowledged packets
-                    free(window[base % WINDOW]);
-                    window[base % WINDOW] = NULL;
-                    base++;
+                printf("Received ACK for packet %d\n", response->sequence_number);
+                if (response->sequence_number >= base) {
+                    while (base <= response->sequence_number) {
+                        // Free acknowledged packets
+                        free(window[base % WINDOW]);
+                        window[base % WINDOW] = NULL;
+                        base++;
+                    }
                 }
             }
             // Process NAK
             else if (response->type == PKT_TYPE_NAK) {
                 printf("Received NAK for packet %d, retransmitting window...\n",
-                       response->sequence_number);
-                next_seq_num = base; // Reset to the base for retransmission
+                    response->sequence_number);
+                // Start retransmitting from the base
+                for (int i = base; i < next_seq_num; i++) {
+                    if (window[i % WINDOW]) {
+                        // Resend the packet
+                        if (send(sockfd, (char *)window[i % WINDOW], sizeof(packet_t), 0) < 0) {
+                            perror("Resend failed");
+                            return;
+                        }
+                        // Log the resent packet
+                        printf("Retransmitted packet: ");
+                        print_packet(window[i % WINDOW]);
+                    }
+                }
             }
+
         }
     }
 
@@ -99,4 +116,5 @@ void primary(int sockfd, double ber) {
             free(window[i]);
         }
     }
+    printf("All packets sent and acknowledged successfully.\n");
 }
