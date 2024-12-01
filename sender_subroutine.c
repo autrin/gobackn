@@ -58,13 +58,17 @@ void primary(int sockfd, double ber) {
             // printf("Built packet and applied ber\n");
             // print_packet((packet_t *)&send_msg);
             // pack_num++;
-            
+
             // Send the packet
             if (send(sockfd, (char *)packet, sizeof(packet_t), 0) < 0) {
                 perror("Send failed");
                 free(packet);
                 return;
             }
+
+            // Print the sent packet
+            printf("Sent packet: ");
+            print_packet(packet);
         }
     }
     // Implement Go-Back-N ARQ protocol:
