@@ -39,7 +39,12 @@ void primary(int sockfd, double ber) {
         send_msg[2] = '\0';
         // Build packet
         build_packet(packet, PKT_TYPE_DATA, send_msg, pack_num);
-
+        // Apply CRC to the packet (generate CRC)
+        short int crc = calculate_CCITT16((unsigned char *)packet, PKT_SIZE - 2, GENERATE_CRC);
+        // PKT-2 Excludes the last two bytes of the packet (reserved for CRC) when generating the CRC.
+        // Set CRC into the packet
+        packet->crc_sum[0] = (crc >> 8) & 0xFF; // High byte
+        packet->crc_sum[1] = crc & 0xFF;        // Low byte
         // introduce error based on the bit rate error
         introduce_bit_error(send_msg, sizeof(send_msg)/sizeof(send_msg[1]), ber);
         // Notice that if the data is delivered corrupt, it needs to be redelivered
