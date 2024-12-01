@@ -25,7 +25,7 @@
 #define PKT_TYPE_DATA 1
 #define PKT_TYPE_ACK 2
 #define PKT_TYPE_NAK 3
-
+#define WINDOW 3 // Window size of Go-Back-N ARQ
 /* Struct with defined the packet format.
  * N.B., you may cast this to and from a char[] or uint8_t[]  */
 typedef struct __attribute__((packed)) packet_t {

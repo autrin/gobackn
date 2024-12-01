@@ -20,7 +20,6 @@ void primary(int sockfd, double ber) {
     char send_msg[3]; // To store two characters and a null terminator
     char srv_reply[150];
     int pack_num = 0;
-    int window = 3; // Window size of Go-Back-N ARQ
     printf("---------Beginning subroutine---------\n");
     printf("Enter the bit rate error: ");
     scanf("%lf", &ber);
@@ -49,7 +48,7 @@ void primary(int sockfd, double ber) {
         pack_num++;
     }
     // Implement Go-Back-N ARQ protocol with a send window of 3
-    for(int i = 0; i < window; i++){
+    for(int i = 0; i < WINDOW; i++){
         // send a plain message
         // strcpy(send_msg, "Hello");
         if (send(sockfd, send_msg, sizeof(send_msg), 0) < 0)
