@@ -65,6 +65,7 @@ void primary(int sockfd, double ber) {
             window[next_seq_num % WINDOW] = packet;
             next_seq_num++;
         }
+        printf("Sliding window: base=%d, next_seq_num=%d\n", base, next_seq_num);
 
         // Wait for acknowledgment from the receiver
         if (recv(sockfd, srv_reply, PKT_SIZE, 0) < 0) {
