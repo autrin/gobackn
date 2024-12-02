@@ -35,6 +35,7 @@ void primary(int sockfd, double ber) {
             packet_t *packet = malloc(sizeof(packet_t));
             if (!packet) {
                 perror("Memory allocation failed");
+                free(packet);
                 return;
             }
 
@@ -49,7 +50,15 @@ void primary(int sockfd, double ber) {
             packet->crc_sum[0] = (crc >> 8) & 0xFF; // High byte
             packet->crc_sum[1] = crc & 0xFF;        // Low byte
             // Store a copy of the packet without error
-            window_without_error[next_seq_num % WINDOW] = packet;
+            packet_t *packet_copy = malloc(sizeof(packet_t));
+            if (!packet_copy) {
+                perror("Memory allocation failed");
+                free(packet);
+                return;
+            }
+            memcpy(packet_copy, packet, sizeof(packet_t));
+            window_without_error[next_seq_num % WINDOW] = packet_copy;
+
             // Apply BER to the packet
             printf("Applying BER=%.3f to packet %d\n", ber, next_seq_num);
             introduce_bit_error((char *)packet, PKT_SIZE, ber);
