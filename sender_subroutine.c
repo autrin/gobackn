@@ -84,7 +84,7 @@ void primary(int sockfd, double ber) {
                 printf("Window contents:\n");
                 for (int i = 0; i < WINDOW; i++) {
                     if (window[i]) {
-                        printf("Packet %d: Exists\n", i);
+                        printf("Packet %d at index %d: Exists\n", window[i]->sequence_number, i);
                     } else {
                         printf("Packet %d: NULL\n", i);
                     }
@@ -113,7 +113,7 @@ void primary(int sockfd, double ber) {
                 printf("Window contents:\n");
                 for (int i = 0; i < WINDOW; i++) {
                     if (window[i]) {
-                        printf("Packet %d: Exists\n", i);
+                        printf("Packet %d at index %d: Exists\n", window[i]->sequence_number, i);
                     } else {
                         printf("Packet %d: NULL\n", i);
                     }
