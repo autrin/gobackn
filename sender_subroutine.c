@@ -16,7 +16,8 @@ void primary(int sockfd, double ber) {
     char alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     char srv_reply[150];            // Buffer for receiver replies
     packet_t *window[WINDOW] = {0}; // Store packets in the send window
-    packet_t * window_without_error[WINDOW] = {0}; // Store a copy of packets in the send window without error
+    packet_t *window_without_error[WINDOW] = {
+        0}; // Store a copy of packets in the send window without error
 
     printf("---------Beginning subroutine---------\n");
 
@@ -89,23 +90,25 @@ void primary(int sockfd, double ber) {
 
             // Process ACK
             if (response->type == PKT_TYPE_ACK) {
-                printf("Received ACK for packet %d\n", response->sequence_number);
-                
+                printf("Received ACK for packet %d\n",
+                       response->sequence_number);
+
                 // Print the window contents for debugging
                 printf("Window contents:\n");
                 for (int i = 0; i < WINDOW; i++) {
                     if (window[i % WINDOW]) {
-                        printf("Packet %d at index %d: Exists\n", window[i % WINDOW]->sequence_number, i);
+                        printf("Packet %d at index %d: Exists\n",
+                               window[i % WINDOW]->sequence_number, i);
                     } else {
                         printf("Index %d: NULL\n", i);
                     }
                 }
-                
+
                 if (response->sequence_number >= base) {
                     // Slide the window forward
                     while (base <= response->sequence_number) {
-                        // Do NOT free packets until they are completely out of the window
-                        // Only set them to NULL for better clarity
+                        // Do NOT free packets until they are completely out of
+                        // the window Only set them to NULL for better clarity
                         // if (window[base % WINDOW]) {
                         //     free(window[base % WINDOW]);
                         //     window[base % WINDOW] = NULL;
@@ -128,23 +131,29 @@ void primary(int sockfd, double ber) {
             // Process NAK
             else if (response->type == PKT_TYPE_NAK) {
                 printf("Received NAK for packet %d, retransmitting window...\n",
-                    response->sequence_number);
+                       response->sequence_number);
 
                 // Print the window contents for debugging
                 printf("Window contents:\n");
-                for (int i = 0; i < WINDOW; i++) { //! this might be i = base or bellow should simply be window[i]
+                for (int i = 0; i < WINDOW;
+                     i++) { //! this might be i = base or bellow should simply
+                            //! be window[i]
                     if (window[i % WINDOW]) {
-                        printf("Packet %d at index %d: Exists\n", window[i % WINDOW]->sequence_number, i);
+                        printf("Packet %d at index %d: Exists\n",
+                               window[i % WINDOW]->sequence_number, i);
                     } else {
                         printf("Index %d: NULL\n", i);
                     }
                 }
 
                 // Start retransmitting from the base
-                for (int i = base - 1; i < next_seq_num; i++) { // Star from the base - 1
+                for (int i = base - 1; i < next_seq_num;
+                     i++) { // Star from the base - 1
                     if (window_without_error[i % WINDOW]) {
                         // Resend the packet
-                        if (send(sockfd, (char *)window_without_error[i % WINDOW], sizeof(packet_t), 0) < 0) {
+                        if (send(sockfd,
+                                 (char *)window_without_error[i % WINDOW],
+                                 sizeof(packet_t), 0) < 0) {
                             perror("Resend failed");
                             return;
                         }
@@ -154,7 +163,6 @@ void primary(int sockfd, double ber) {
                     }
                 }
             }
-
         }
     }
 
@@ -164,7 +172,7 @@ void primary(int sockfd, double ber) {
             free(window[i]);
             window[i] = NULL;
         }
-        if(window_without_error[i]) {
+        if (window_without_error[i]) {
             free(window_without_error[i]);
             window_without_error[i] = NULL;
         }
