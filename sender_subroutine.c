@@ -11,14 +11,13 @@
  * 					with the secondary
  * ber 	  - bit error rate which must be passed to IntroduceError */
 void primary(int sockfd, double ber) {
-    int pack_num = 0;     // Packet sequence number
     int base = 0;         // Go-Back-N ARQ base sequence
     int next_seq_num = 0; // Next sequence number
     char alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     char srv_reply[150];            // Buffer for receiver replies
     packet_t *window[WINDOW] = {0}; // Store packets in the send window
     packet_t * window_without_error[WINDOW] = {0}; // Store a copy of packets in the send window without error
-    int curr_idx_in_window = 0;  // Keeps track of the current packet in the window
+
     printf("---------Beginning subroutine---------\n");
 
     // Input BER (bit error rate)
