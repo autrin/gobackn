@@ -124,7 +124,7 @@ void primary(int sockfd, double ber) {
 
                 // Print the window contents for debugging
                 printf("Window contents:\n");
-                for (int i = 0; i < WINDOW; i++) {
+                for (int i = 0; i < WINDOW; i++) { //! this might be i = base or bellow should simply be window[i]
                     if (window[i % WINDOW]) {
                         printf("Packet %d at index %d: Exists\n", window[i % WINDOW]->sequence_number, i);
                     } else {
@@ -133,7 +133,7 @@ void primary(int sockfd, double ber) {
                 }
 
                 // Start retransmitting from the base
-                for (int i = base; i < next_seq_num; i++) {
+                for (int i = base - 1; i < next_seq_num; i++) { // Star from the base - 1
                     if (window_without_error[i % WINDOW]) {
                         // Resend the packet
                         if (send(sockfd, (char *)window_without_error[i % WINDOW], sizeof(packet_t), 0) < 0) {
