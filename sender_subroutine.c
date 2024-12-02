@@ -95,10 +95,10 @@ void primary(int sockfd, double ber) {
                     while (base <= response->sequence_number) {
                         // Do NOT free packets until they are completely out of the window
                         // Only set them to NULL for better clarity
-                        if (window[base % WINDOW]) {
-                            free(window[base % WINDOW]);
-                            window[base % WINDOW] = NULL;
-                        }
+                        // if (window[base % WINDOW]) {
+                        //     free(window[base % WINDOW]);
+                        //     window[base % WINDOW] = NULL;
+                        // }
                         base++;
                     }
                 }
