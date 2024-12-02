@@ -78,26 +78,47 @@ void primary(int sockfd, double ber) {
 
             // Process ACK
             if (response->type == PKT_TYPE_ACK) {
-            printf("Received ACK for packet %d\n", response->sequence_number);
-            
-            if (response->sequence_number >= base) {
-                // Slide the window forward
-                while (base <= response->sequence_number) {
-                    // Do NOT free packets until they are completely out of the window
-                    // Only set them to NULL for better clarity
-                    if (window[base % WINDOW]) {
-                        free(window[base % WINDOW]);
-                        window[base % WINDOW] = NULL;
+                printf("Received ACK for packet %d\n", response->sequence_number);
+                
+                // Print the window contents for debugging
+                printf("Window contents:\n");
+                for (int i = 0; i < WINDOW; i++) {
+                    if (window[i]) {
+                        printf("Packet %d: Exists\n", i);
+                    } else {
+                        printf("Packet %d: NULL\n", i);
                     }
-                    base++;
+                }
+                
+                if (response->sequence_number >= base) {
+                    // Slide the window forward
+                    while (base <= response->sequence_number) {
+                        // Do NOT free packets until they are completely out of the window
+                        // Only set them to NULL for better clarity
+                        if (window[base % WINDOW]) {
+                            free(window[base % WINDOW]);
+                            window[base % WINDOW] = NULL;
+                        }
+                        base++;
+                    }
                 }
             }
-        }
 
             // Process NAK
             else if (response->type == PKT_TYPE_NAK) {
                 printf("Received NAK for packet %d, retransmitting window...\n",
                     response->sequence_number);
+
+                // Print the window contents for debugging
+                printf("Window contents:\n");
+                for (int i = 0; i < WINDOW; i++) {
+                    if (window[i]) {
+                        printf("Packet %d: Exists\n", i);
+                    } else {
+                        printf("Packet %d: NULL\n", i);
+                    }
+                }
+
                 // Start retransmitting from the base
                 for (int i = base; i < next_seq_num; i++) {
                     if (window[i % WINDOW]) {
