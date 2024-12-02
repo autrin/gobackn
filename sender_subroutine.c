@@ -15,10 +15,10 @@ void primary(int sockfd, double ber) {
     int next_seq_num = 0; // Next sequence number
     char alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     char srv_reply[150];            // Buffer for receiver replies
-    packet_t *window[WINDOW] = {0}; // Store packets in the send window
-    packet_t *window_without_error[WINDOW] = {
-        0}; // Store a copy of packets in the send window without error
-
+    packet_t *window[13] = {0}; // Store packets in the send window
+    packet_t *window_without_error[13] = {
+        0};                        // Store a copy of packets in the send window without error
+    int transmissions_num = 0;     // Number of transmissions
     printf("---------Beginning subroutine---------\n");
 
     // Input BER (bit error rate)
@@ -57,12 +57,15 @@ void primary(int sockfd, double ber) {
                 return;
             }
             memcpy(packet_copy, packet, sizeof(packet_t));
-            window_without_error[next_seq_num % WINDOW] = packet_copy;
+            window_without_error[next_seq_num] = packet_copy;
 
             // Apply BER to the packet
             printf("Applying BER=%.3f to packet %d\n", ber, next_seq_num);
             introduce_bit_error((char *)packet, PKT_SIZE, ber);
-
+            if(packet->sequence_number && packet->sequence_number >= 13){
+                printf("Sequence num was %d\n which is >=13", packet->sequence_number);
+                continue;
+            }
             // Send the packet
             if (send(sockfd, (char *)packet, sizeof(packet_t), 0) < 0) {
                 perror("Send failed");
@@ -75,8 +78,9 @@ void primary(int sockfd, double ber) {
             print_packet(packet);
 
             // Store the packet in the send window for potential retransmission
-            window[next_seq_num % WINDOW] = packet;
+            window[next_seq_num] = packet;
             next_seq_num++;
+            transmissions_num++;
         }
         printf("Sliding window: base=%d, next_seq_num=%d\n", base,
                next_seq_num);
@@ -95,10 +99,10 @@ void primary(int sockfd, double ber) {
 
                 // Print the window contents for debugging
                 printf("Window contents:\n");
-                for (int i = 0; i < WINDOW; i++) {
-                    if (window[i % WINDOW]) {
+                for (int i = 0; i < 13; i++) {
+                    if (window[i]) {
                         printf("Packet %d at index %d: Exists\n",
-                               window[i % WINDOW]->sequence_number, i);
+                               window[i]->sequence_number, i);
                     } else {
                         printf("Index %d: NULL\n", i);
                     }
@@ -121,9 +125,9 @@ void primary(int sockfd, double ber) {
                         //             window[i % WINDOW] = NULL;
                         //         }
                         //     }
-                        // }
-
+                        // 
                         base++;
+                        // base = response->sequence_number; 
                     }
                 }
             }
@@ -138,34 +142,42 @@ void primary(int sockfd, double ber) {
                 for (int i = 0; i < WINDOW;
                      i++) { //! this might be i = base or bellow should simply
                             //! be window[i]
-                    if (window[i % WINDOW]) {
+                    if (window[i]) {
                         printf("Packet %d at index %d: Exists\n",
-                               window[i % WINDOW]->sequence_number, i);
+                               window[i]->sequence_number, i);
                     } else {
                         printf("Index %d: NULL\n", i);
                     }
                 }
 
                 // Start retransmitting from the base
-                for (int i = base - 1; i < next_seq_num;
-                     i++) { // Star from the base - 1
-                    if (window_without_error[i % WINDOW]) {
+                for (int i = 0; i < next_seq_num;
+                     i++) {
+                    if (window_without_error[i]) {
                         // Resend the packet
+                        if(window_without_error[i]->sequence_number && window_without_error[i]->sequence_number >= 13){
+                            printf("before break\n");
+                            continue;
+                        }
+                        // printf("after break\n");
+
                         if (send(sockfd,
-                                 (char *)window_without_error[i % WINDOW],
+                                 (char *)window_without_error[i],
                                  sizeof(packet_t), 0) < 0) {
                             perror("Resend failed");
                             return;
                         }
                         // Log the resent packet
                         printf("Retransmitted packet: ");
-                        print_packet(window_without_error[i % WINDOW]);
+                        print_packet(window_without_error[i]);
+                        transmissions_num++;
                     }
                 }
             }
         }
+        printf("Number of transmissions: %d\n", transmissions_num);
     }
-
+    printf("at line 174\n");
     // Cleanup: free any remaining allocated packets
     for (int i = 0; i < WINDOW; i++) {
         if (window[i]) {
