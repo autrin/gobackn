@@ -117,15 +117,6 @@ void primary(int sockfd, double ber) {
                         //     free(window[base % WINDOW]);
                         //     window[base % WINDOW] = NULL;
                         // }
-                        // Free packets no longer in the window
-                        // if (base > WINDOW) {
-                        //     for (int i = 0; i < base - WINDOW; i++) {
-                        //         if (window[i % WINDOW]) {
-                        //             free(window[i % WINDOW]);
-                        //             window[i % WINDOW] = NULL;
-                        //         }
-                        //     }
-                        // 
                         base++;
                         // base = response->sequence_number; 
                     }
