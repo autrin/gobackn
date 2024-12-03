@@ -151,8 +151,10 @@ void primary(int sockfd, double ber) {
                 }
 
                 // Start retransmitting from the base
-                for (int i = 0; i < next_seq_num;
-                     i++) {
+                int i = 0;
+                if(base == 0) i = 0;
+                else i = base - 1;
+                for (i; i < next_seq_num; i++) {
                     if (window_without_error[i]) {
                         // Resend the packet
                         if(window_without_error[i]->sequence_number && window_without_error[i]->sequence_number >= 13){
