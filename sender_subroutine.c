@@ -177,7 +177,6 @@ void primary(int sockfd, double ber) {
         }
         printf("Number of transmissions: %d\n", transmissions_num);
     }
-    printf("at line 174\n");
     // Cleanup: free any remaining allocated packets
     for (int i = 0; i < WINDOW; i++) {
         if (window[i]) {
