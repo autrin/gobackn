@@ -22,8 +22,8 @@
 #### - When the sender gets a NAK from the receiver, it (1) displays an indication of the received NAK and (2) retransmits all the packets in the send window.
 
 #### Receiver: 
-##### Accept data packets from the sender.
-##### Run the CRC:
+#### Accept data packets from the sender.
+#### Run the CRC:
 #### - If the packet is received error free and in sequence, it displays the packet content and sequence number, then sends back an ACK.
 #### - If the packet is received error free but out of sequence, it does not display the packet content but displays the sequence number, then sends back an ACK.
 #### - If the packet is received in error, it does not display the packet content but displays the sequence number if possible, then sends back a NAK.
