@@ -158,10 +158,8 @@ void primary(int sockfd, double ber) {
                     if (window_without_error[i]) {
                         // Resend the packet
                         if(window_without_error[i]->sequence_number && window_without_error[i]->sequence_number >= 13){
-                            printf("before break\n");
                             continue;
                         }
-                        // printf("after break\n");
 
                         if (send(sockfd,
                                  (char *)window_without_error[i],
