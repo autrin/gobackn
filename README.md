@@ -1,6 +1,33 @@
-# CPRE 4890 Go-Back-N Template
+### To design and develop a sender function (sender_subroutine.c) to implement the Go-Back-N ARQ protocol. Note that this Go-Back-N ARQ protocol is a revised version, and it uses both ACK and NAK packets to simplify the implementation and avoid having to implement the timeout mechanism.
 
-## Getting Started
+− Packet Type
+o 1: Data Packet (sent from sender to receiver)
+o 2: Acknowledgement Packet (ACK) (sent from receiver to sender)
+o 3: Negative Acknowledgment Packet (NAK) (sent from receiver to sender)
+− Packet Number
+o Starts from 0 and increments sequentially to 12
+− Data
+o Two alphabet characters (sent from sender to receiver)
+o No data is sent from receiver to sender
+− CRC:
+o CRC generated for this entire packet, including Packet Type, Packet Number, and Data fields (see the section on CRC)
+
+#### CRC generation and error detection is provided in ccitt16.o.
+#### Sender:
+#### - Displays the built packets (print_packet()).
+#### - Applys the “IntroduceError.c” routine to the entire packet. Passes the BER value to the program as an argument in the command line.
+#### - Implements the Go-Back-N ARQ protocol with a send window of size N = 3:
+#### - The sender initially sends all packets within its send window. Any time a packet is sent, the packet is printed accordingly.
+#### - When the sender gets an ACK from the receiver, it (1) displays an indication of the received ACK, (2) adjusts the send window and (3) sends any new packets in its send window.
+#### - When the sender gets a NAK from the receiver, it (1) displays an indication of the received NAK and (2) retransmits all the packets in the send window.
+
+#### Receiver: 
+##### Accept data packets from the sender.
+##### Run the CRC:
+#### - If the packet is received error free and in sequence, it displays the packet content and sequence number, then sends back an ACK.
+#### - If the packet is received error free but out of sequence, it does not display the packet content but displays the sequence number, then sends back an ACK.
+#### - If the packet is received in error, it does not display the packet content but displays the sequence number if possible, then sends back a NAK.
+#### - ACK and NAK packets will never be corrupted.
 
 ### Compiling and Running
 
@@ -12,16 +39,6 @@ make
 ./sender 127.0.0.1 5000 0.01
 ```
 
-If successful, you should see the sender transmit a mostly-garbage packet. The receiver will respond with a NAK as the sent packet's checksum is invalid.
-
-### Developing Your Solution
-
-It's recommended you first read over each of the files provided, especially the header files `introduceerror.h`, `ccitt16.h`, and `utilities.h`.
-
-Once ready, you may begin developing your solution in `sender_subroutine.c`.
-
 ## Helpful Notes
 
-- Some of the given .o files such as the CCITT16 CRC generation code may not compile on machines other than the ones in the Coover 2061 lab. However, you may use/implement your own CCITT16 CRC generator.
-- When receiving a `NAK`, don't think too much into the received packet printed out by `receiver_subroutine.c`. After all, it _is_ a corrupted packet.
-- `sender.o` and `receiver.o` already set up the connection between the sender and receiver.
+- `sender.o` and `receiver.o` already set up the TCP connection between the sender and receiver.
