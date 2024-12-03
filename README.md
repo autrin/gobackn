@@ -1,16 +1,16 @@
 ### To design and develop a sender function (sender_subroutine.c) to implement the Go-Back-N ARQ protocol. Note that this Go-Back-N ARQ protocol is a revised version, and it uses both ACK and NAK packets to simplify the implementation and avoid having to implement the timeout mechanism.
 
-− Packet Type
-o 1: Data Packet (sent from sender to receiver)
-o 2: Acknowledgement Packet (ACK) (sent from receiver to sender)
-o 3: Negative Acknowledgment Packet (NAK) (sent from receiver to sender)
-− Packet Number
-o Starts from 0 and increments sequentially to 12
-− Data
-o Two alphabet characters (sent from sender to receiver)
-o No data is sent from receiver to sender
-− CRC:
-o CRC generated for this entire packet, including Packet Type, Packet Number, and Data fields (see the section on CRC)
+#### Packet Type
+#### - 1: Data Packet (sent from sender to receiver)
+#### - 2: Acknowledgement Packet (ACK) (sent from receiver to sender)
+#### - 3: Negative Acknowledgment Packet (NAK) (sent from receiver to sender)
+#### Packet Number
+#### - Starts from 0 and increments sequentially to 12
+#### Data
+#### - Two alphabet characters (sent from sender to receiver)
+#### - No data is sent from receiver to sender
+#### CRC:
+#### - CRC generated for this entire packet, including Packet Type, Packet Number, and Data fields
 
 #### CRC generation and error detection is provided in ccitt16.o.
 #### Sender:
