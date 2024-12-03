@@ -1,4 +1,5 @@
-### To design and develop a sender function (sender_subroutine.c) to implement the Go-Back-N ARQ protocol. Note that this Go-Back-N ARQ protocol is a revised version, and it uses both ACK and NAK packets to simplify the implementation and avoid having to implement the timeout mechanism.
+### To design and develop a sender function (sender_subroutine.c) to implement the Go-Back-N ARQ protocol. 
+#### Note that this Go-Back-N ARQ protocol is a revised version, and it uses both ACK and NAK packets to simplify the implementation. So it does not implement the timeout mechanism.
 
 #### Packet Type
 #### - 1: Data Packet (sent from sender to receiver)
